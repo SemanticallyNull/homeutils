@@ -109,6 +109,7 @@ upload_certificate_to_printer() {
     exit 1
   fi
 
+  rm "${temp_log}"
   green "Done"
 }
 
@@ -119,13 +120,16 @@ fi
 
 ensure_certbot_dirs
 ensure_cloudflare_api_token
+
 echo
 get_certificate "${1:-""}"
+
 keypassword="$(pwgen 12 1)"
 certificate_path="$(mktemp -t "printercert.certpath")"
 reencode_certificate "${keypassword}" "${certificate_path}"
 upload_certificate_to_printer "${1:-""}" "${certificate_path}" "${keypassword}"
 
 rm "${certificate_path}"
+
 echo
 green "DONE"
