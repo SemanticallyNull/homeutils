@@ -49,11 +49,6 @@ get_certificate() {
 
   temp_log="$(mktemp -t "printercert.certlog")"
 
-  if [[ "${printer_domain}" == "" ]]; then
-    echo "Please provide a domain for the certificate"
-    exit 1
-  fi
-
   echo -n "Requesting certificate... "
   if ! (certbot --config-dir "${HOME}/.certbot/config" --work-dir "${HOME}/.certbot/work" --logs-dir "${HOME}/.certbot/log"\
     certonly \
@@ -127,7 +122,7 @@ ensure_certbot_dirs
 ensure_cloudflare_api_token
 
 echo
-get_certificate "${1:-""}"
+get_certificate "${1}"
 
 keypassword="$(pwgen 12 1)"
 certificate_path="$(mktemp -t "printercert.certpath")"
