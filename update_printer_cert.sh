@@ -12,7 +12,7 @@ green() {
 ensure_certbot_dirs() {
   echo -n "Checking for certbot directories... "
 
-  if ! stat "${HOME}/.certbot" > /dev/null; then
+  if ! stat "${HOME}/.certbot" > /dev/null 2> /dev/null; then
     red "Not Found"
     echo "Creating certbot directories..."
     mkdir -p "${HOME}/.certbot/"{log,work,config}
@@ -27,16 +27,17 @@ ensure_cloudflare_api_token() {
 
   echo -n "Checking for Cloudflare API token... "
 
-  if ! stat "${HOME}/.secrets/certbot/cloudflare.ini" > /dev/null; then
+  if ! stat "${HOME}/.secrets/certbot/cloudflare.ini" > /dev/null 2> /dev/null; then
     red "Not Found"
 
     mkdir -p "${HOME}/.secrets/certbot"
 
-    echo "Could not find your Cloudflare API token."
-    echo -n "Cloudflare API token: "
-    read -r -s cloudflare_token
+    echo -n "Getting API token..."
+    cloudflare_token="$(op get item gt5phu3isngmvozkqrq6c4vqjm --fields password)"
 
     echo "dns_cloudflare_api_token = ${cloudflare_token}" > "${HOME}/.secrets/certbot/cloudflare.ini"
+
+    green "Done"
   else
     green "Found"
   fi
@@ -83,28 +84,30 @@ reencode_certificate() {
 }
 
 upload_certificate_to_printer() {
-  local printer_password
   local temp_log
+  local printer_password
   local printer_domain="${1}"
   local certificate_path="${2}"
   local certificate_password="${3}"
 
+  printer_password="$(op get item mgl6vaseiveh7ildbdi2v2i25a --fields password)"
   temp_log="$(mktemp -t "printercert.printerlog")"
 
   echo "Setting certificate on printer... "
 
-  echo -n "Printer password: "
-  read -r -s printer_password
-
-  curl -k -qs "https://${1}/Security/DeviceCertificates/NewCertWithPassword/Upload?fixed_response=true" \
+  if ! curl -k -qs "https://${1}/Security/DeviceCertificates/NewCertWithPassword/Upload?fixed_response=true" \
     -X POST \
     --user "admin:${printer_password}" \
     -F "certificate=@${certificate_path}" \
-    -F "password=${certificate_password}" >> "${temp_log}" 2>> "${temp_log}"
+    -F "password=${certificate_password}" >> "${temp_log}" 2>> "${temp_log}"; then
+    red "Fail"
+    echo "There was a failure whilst uploading the certificate"
+    echo "You can review the logs at ${temp_log}"
+  fi
 
   if ! (grep -q "<err:HttpCode>201</err:HttpCode>" "${temp_log}"); then
     red "Fail"
-    echo "There was a failure whilst generating the certificate"
+    echo "There was a failure whilst uploading the certificate"
     echo "You can review the logs at ${temp_log}"
     exit 1
   fi
@@ -117,6 +120,8 @@ if [[ "${1:-""}x" == "x" ]]; then
   echo "You must provide the printer domain as the first arugment"
   exit 1
 fi
+
+eval "$(op signin my.1password.eu)"
 
 ensure_certbot_dirs
 ensure_cloudflare_api_token
