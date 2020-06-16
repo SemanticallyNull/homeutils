@@ -55,7 +55,7 @@ get_certificate() {
 
   echo -n "Requesting certificate... "
   if ! (certbot --config-dir "${HOME}/.certbot/config" --work-dir "${HOME}/.certbot/work" --logs-dir "${HOME}/.certbot/log"\
-    certonly --force-renewal \
+    certonly \
     --non-interactive --agree-tos -m hello@katiechapman.ie \
     --dns-cloudflare \
     --dns-cloudflare-credentials "${HOME}/.secrets/certbot/cloudflare.ini" \
