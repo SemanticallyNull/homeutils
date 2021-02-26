@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 red() {
   echo -e "\033[1;91m${*}\033[0m"
 }
