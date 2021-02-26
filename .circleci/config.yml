@@ -1,0 +1,8 @@
+version: '2.1'
+orbs:
+  shellcheck: circleci/shellcheck@2.0.0
+workflows:
+  test:
+    jobs:
+      - shellcheck/check:
+          dir: .
