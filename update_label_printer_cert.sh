@@ -17,7 +17,7 @@ upload_certificate_to_printer() {
 
   echo -n "Logging into printer... "
 
-  if ! curl -k -qs "https://${1}/general/status.html" \
+  if ! curl -k -qs "https://${printer_domain}/general/status.html" \
     -c "${temp_cookie_jar}" \
     -d "B126=${printer_password}&loginurl=/general/status.html" >> "${temp_log}" 2>> "${temp_log}"; then
     red "Fail"
@@ -37,7 +37,7 @@ upload_certificate_to_printer() {
 
   echo -n "Installing certificate on printer... "
 
-  if ! curl -v -k "https://${1}/net/security/certificate/import.html" \
+  if ! curl -v -k "https://${printer_domain}/net/security/certificate/import.html" \
     -X POST \
     -b "${temp_cookie_jar}" \
     -F "pageid=223" \

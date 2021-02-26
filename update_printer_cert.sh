@@ -16,7 +16,7 @@ upload_certificate_to_printer() {
 
   echo -n "Setting certificate on printer... "
 
-  if ! curl -k -qs "https://${1}/Security/DeviceCertificates/NewCertWithPassword/Upload?fixed_response=true" \
+  if ! curl -k -qs "https://${printer_domain}/Security/DeviceCertificates/NewCertWithPassword/Upload?fixed_response=true" \
     -X POST \
     --user "admin:${printer_password}" \
     -F "certificate=@${certificate_path}" \
