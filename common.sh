@@ -72,7 +72,7 @@ reencode_certificate() {
   echo -n "Encoding certificate... "
   openssl pkcs12 -export -out "${certificate_path}" \
     -inkey "${HOME}/.certbot/config/live/${printer_domain}/privkey.pem" \
-    -in "${HOME}/.certbot/config/live/${printer_domain}/fullchain.pem" \
+    -in "${HOME}/.certbot/config/live/${printer_domain}/cert.pem" \
     -passout "pass:${certificate_password}"
   green "Done"
 }
